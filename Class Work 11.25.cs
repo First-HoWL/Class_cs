@@ -6,9 +6,6 @@ Console.InputEncoding = UTF8Encoding.UTF8;
 
 
 
-
-
-
 void bubble_sort(int[] array, int len)
 {
     bool is_changed = true;
@@ -18,7 +15,7 @@ void bubble_sort(int[] array, int len)
         is_changed = false;
         for (int i = 0; i < len - 1; i++)
         {
-            if (array[i] > array[i + 1]) 
+            if (array[i] > array[i + 1])
             {
                 a = array[i];
                 array[i] = array[i + 1];
@@ -30,51 +27,49 @@ void bubble_sort(int[] array, int len)
 
 }
 
-double CelsToFahr(double celsius){
+double CelsToFahr(double celsius)
+{
     return celsius * 1.8 + 32;
 }
 
-double FahrToCels(double fahrenheit){
+double FahrToCels(double fahrenheit)
+{
     return (fahrenheit - 32) * 0.55555; ;
 }
-void color(double b)
+void color(double temp)
 {
-    if (b < -10)
+    if (temp < -10)
         Console.ForegroundColor = ConsoleColor.DarkBlue;
-    else if (b < 10)
+    else if (temp < 10)
         Console.ForegroundColor = ConsoleColor.Blue;
-    else if (b < 25)
+    else if (temp < 25)
         Console.ForegroundColor = ConsoleColor.White;
-    else if (b < 33)
+    else if (temp < 33)
         Console.ForegroundColor = ConsoleColor.DarkYellow;
     else
         Console.ForegroundColor = ConsoleColor.Red;
 
 }
+
 Console.Write("1. З цельсію в фарінгейт 2. З фарінгейту в цельсій: ");
 int a = int.Parse(Console.ReadLine());
 Console.Write("Температура: ");
-double temp = double.Parse(Console.ReadLine()), temp2 = 0;
-if (a == 1){
-    temp2 = CelsToFahr(temp);    
-}
-else if (a == 2){
+double temp = double.Parse(Console.ReadLine()), temp2 = 0, b;
+if (a == 1)
+    temp2 = CelsToFahr(temp);
+else if (a == 2)
     temp2 = FahrToCels(temp);
-}
 
-double b;
 if (a == 1)
     b = temp;
-else 
+else
     b = temp2;
 
 Console.Write($"Температура: ");
-
 color(b);
-
 Console.Write(temp2);
 Console.ForegroundColor = ConsoleColor.Gray;
-Console.Write($"градусів!");
+Console.Write($" градусів!");
 
 /* 
 int[] numbers = { 1, 5, 3, 2, 2 };
