@@ -10,13 +10,10 @@ void bubble_sort(int[] array, int len)
 {
     bool is_changed = true;
     int a;
-    while (is_changed)
-    {
+    while (is_changed){
         is_changed = false;
-        for (int i = 0; i < len - 1; i++)
-        {
-            if (array[i] > array[i + 1])
-            {
+        for (int i = 0; i < len - 1; i++){
+            if (array[i] > array[i + 1]){
                 a = array[i];
                 array[i] = array[i + 1];
                 array[i + 1] = a;
@@ -24,7 +21,6 @@ void bubble_sort(int[] array, int len)
             }
         }
     }
-
 }
 
 double CelsToFahr(double celsius)
@@ -80,8 +76,6 @@ for (int i = 0; i < 5; i++)
     Console.WriteLine(numbers[i]);
 }
 */
-
-
 /* 
 int numb, sum = 0, max = 0, min = 10000, dob = 1;
 
