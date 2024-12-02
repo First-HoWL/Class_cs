@@ -13,23 +13,28 @@ class Program
         player1.print();
         Console.WriteLine();
 
-        Character player2 = new Character("Anton", 90, 18, 7);
+        Character player2 = new Character("Anton", 80, 18, 7);
         player2.print();
 
         while (true)
         {
-            Console.WriteLine();
-            player2.attack(player1);
-            player1.print();
+
+            if (player2.attack(player1))
+                break;
 
             Thread.Sleep(2000);
+            Console.Clear();    
+
+            if (player1.attack(player2))
+                break;
+
+            Thread.Sleep(2000);
+            Console.Clear();
         }
 
-        
+
     }
 }
-
-
 
 
 
@@ -69,11 +74,26 @@ namespace Game
             else
                 damage += (damage / 10);
             int dmg = Convert.ToInt32((damage - (damage / 100 * defence)));
-            this.health -= Math.Max(dmg, 0);
+            this.health = Math.Max(this.health - dmg, 0);
+            if (this.health == 0)
+                return 0;
             return dmg;
         }
-        public void attack( Character target ) { 
-            target.take_damage(this.damage);
+        public bool attack(Character target)
+        {
+            int dmg = target.take_damage(this.damage);
+            if (dmg == 0)
+            {
+                Console.Write($"{this.name} has kiled ");
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write(target.name);
+                Console.ForegroundColor= ConsoleColor.Gray;
+                Console.Write("!");
+                return true;
+            }
+            Console.WriteLine($"{this.name} atacked {target.name} and caused {dmg} damage!");
+            Console.WriteLine($"{target.name} has {target.health} health!");
+            return false;
         }
 
     }
