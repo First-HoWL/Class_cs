@@ -13,11 +13,11 @@ class Program
     static void Main(string[] args)
     {
                 
-        Character player1 = new Character("HoWL", 100, 15, 4, 15, 20, Race.Ork);
+        Character player1 = new Character("HoWL", 100, 15, 4, 15, 20, 30, (Race) 1);
         player1.print();
         Console.WriteLine();
 
-        Character player2 = new Character("Anton", 90, 18, 7, 10, 10);
+        Character player2 = new Character("Anton", 90, 18, 7, 10, 10, 20);
         player2.print();
         Console.WriteLine();
         Thread.Sleep(4000);
@@ -46,7 +46,6 @@ class Program
 
 
 
-
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
 using System;
@@ -62,25 +61,47 @@ namespace Game
         Dwarf
     }
 
+    enum type_of_damage 
+    {
+        physical,
+        magical,
+        clear
+    }
+    enum spels
+    {
+        fire,
+        wind,
+        regeneration,
+        sun_strike
+    }
+    enum spel_type 
+    {
+        damage,
+        regen
+    }
+
+
     class Character
     {
         string? name;
-        int health;
+        double health;
         int damage;
         int defence;
         int evasion;
         int vampirism;
+        int magresist;
+        type_of_damage damageType; 
         Race race;
         Race goodAgainst;
         Race badAgainst;
-
+        spels spel;
         
         public string? Name
         {
             get { return name; }
             set { this.name = value; }
         }
-        public int Health
+        public double Health
         {
             get { return health; }
             set { health = Math.Max(value, 0); }
@@ -105,6 +126,11 @@ namespace Game
             get { return vampirism; }
             set { vampirism = value;  }
         }
+        public int Magresist
+        {
+            get { return magresist; }
+            set { magresist = value; }
+        }
         public Race Races{ 
             get { return race; }
             set { race = value; Againsts(); }
@@ -116,6 +142,11 @@ namespace Game
         public Race BadAgainst
         {
             get { return badAgainst; }
+        }
+        public type_of_damage DamageType
+        {
+            get { return damageType; }
+            set { damageType = value; }
         }
 
         void Againsts()
@@ -140,9 +171,10 @@ namespace Game
                 this.goodAgainst = Race.Human;
                 this.badAgainst = Race.Elf;
             }
+
         }
 
-        public Character(string? name, int health, int damage, int defence, int evasion, int vampirism, Race race = Race.Human)
+        public Character(string? name, double health, int damage, int defence, int evasion, int vampirism, int magresist, Race race = Race.Human, type_of_damage damageType = type_of_damage.physical)
         {
             this.name = name;
             this.health = health;
@@ -151,13 +183,15 @@ namespace Game
             this.evasion = evasion;
             this.vampirism = vampirism;
             this.race = race;
+            this.damageType = damageType;
+            this.magresist = magresist;
             Againsts();
         }
 
         public void print()
         {
             Console.WriteLine($"-< {name} >- ");
-            Console.WriteLine($"Hp: {health} ");
+            Console.WriteLine($"Hp: {Convert.ToInt32(health)} ");
             Console.WriteLine($"Damage: {damage} ");
             Console.WriteLine($"Defence: {defence} ");
             Console.WriteLine($"Evasion: {evasion}");
@@ -165,18 +199,28 @@ namespace Game
             Console.WriteLine($"Race: {race}");
         }
 
-        public int take_damage(double damage)
+        public double take_damage(double damage, Character from)
         {
             Random? rand = new Random();
-            int a = rand.Next(0, 2), ev = rand.Next(1, (100 / evasion) + 1);
-            if (a == 0)
-                damage -= (damage / 10);
-            else
-                damage += (damage / 10);
-            if (ev == 1)
-                return -1;
-            int dmg = Convert.ToInt32((damage - (damage / 100 * defence)));
-            this.health = Math.Max((this.health - dmg + ((dmg / 100) * this.vampirism)), 0);
+            double dmg = -10;
+            if (from.damageType == type_of_damage.physical)
+            {
+                int a = rand.Next(0, 2), ev = rand.Next(1, (100 / evasion) + 1);
+                if (a == 0)
+                    damage -= (damage / 10);
+                else
+                    damage += (damage / 10);
+                if (ev == 1)
+                    return -1;
+                dmg = ((damage - (damage / 100 * defence)));
+                from.health += ((dmg / 100) * this.vampirism);
+
+            }
+            else if (from.damageType == type_of_damage.magical)
+                dmg = ((damage - (damage / 100 * magresist)));
+            else if (from.damageType == type_of_damage.clear)
+                dmg = damage;
+            this.health = Math.Max((this.health - dmg), 0);
             if (this.health == 0)
                 return 0;
             return dmg;
@@ -185,12 +229,12 @@ namespace Game
         {
             double to_dmg = Convert.ToDouble(this.Damage);
 
-            if (target.Races == this.GoodAgainst)
+            if (target.Races == this.GoodAgainst && this.DamageType == type_of_damage.physical)
                 to_dmg += this.Damage / 10;
-            else if (target.Races == this.BadAgainst)
+            else if (target.Races == this.BadAgainst && this.DamageType == type_of_damage.physical)
                 to_dmg -= this.Damage / 10;
 
-            int dmg = target.take_damage(to_dmg);
+            int dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
             if (dmg == 0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -205,12 +249,32 @@ namespace Game
                 return false;
             }
             Console.WriteLine($"{this.name} atacked {target.name} and caused {dmg} damage!");
-            Console.WriteLine($"{target.name} has {target.health} health!");
+            Console.WriteLine($"{target.name} has {Convert.ToInt32(target.health)} health!");
             return false;
         }
 
     }
 
+    class spells
+    {
+        spel sun_strike = new spel("sun_strike", 20, type_of_damage.magical, spel_type.damage);
+    }
+
+    class spel
+    {
+        string? name;
+        int damage;
+        type_of_damage damageType;
+        spel_type typeSpel;
+
+        public spel(string? name, int damage, type_of_damage damageType, spel_type typeSpel) 
+        {
+            this.name = name;
+            this.damage = damage;
+            this.typeSpel = typeSpel;
+            this.damageType = damageType;
+        }
+    }
     class Web_site
     {
         string Name;
