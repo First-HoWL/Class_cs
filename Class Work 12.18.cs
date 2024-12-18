@@ -158,13 +158,14 @@ class Program
 
     static void Main(string[] args)
     {
+        /*
         Shape[] shapes = { new Square(4), new Rectangle(3, 10), new Circle(10), new Triangle(10, 6, 8), new Trapezoid(6, 8, 10) };
 
         foreach (Shape shape in shapes)
         {
             Console.WriteLine($"Area of {shape} is {shape.GetArea()}");
         }
-
+        */
         /*
         Fraction a = new Fraction(4, 14);
         Fraction b = new Fraction(10, 14);
@@ -191,7 +192,7 @@ class Program
         if (point1 == point2) Console.WriteLine("True");
         else Console.WriteLine("False");
         */
-        /*
+        
         Berserk player1 = new Berserk("HoWL", 40, 15, 4, 15, 20, 30, (Race)1);
         player1.print();
         Console.WriteLine();
@@ -199,25 +200,24 @@ class Program
         Magical player2 = new Magical("Anton", 120, 15, 7, 10, 10, 20);
         player2.print();
         Console.WriteLine();
-        Thread.Sleep(3000);
+        Thread.Sleep(000);
         while (true)
         {
 
             if (player2.attack(player1))
                 break;
 
-            Thread.Sleep(2000);
+            Thread.Sleep(000);
 
             if (player1.attack(player2))
                 break;
 
-            Thread.Sleep(2000);
+            Thread.Sleep(000);
         }
 
-        */
+        
     }
 }
-
 
 
 
@@ -370,7 +370,7 @@ namespace Game
         public void print()
         {
             Console.WriteLine($"-< {name} >- ");
-            Console.WriteLine($"Hp: {Convert.ToInt32(health)} ");
+            Console.WriteLine($"Hp: {Math.Round(this.health, 2)} ");
             Console.WriteLine($"Damage: {damage} ");
             Console.WriteLine($"Defence: {defence} ");
             Console.WriteLine($"Evasion: {evasion}");
@@ -378,7 +378,7 @@ namespace Game
             Console.WriteLine($"Race: {race}");
         }
 
-        public double take_damage(double damage, Character from)
+        public virtual double take_damage(double damage, Character from)
         {
             Random? rand = new Random();
             double dmg = -10;
@@ -404,7 +404,7 @@ namespace Game
                 return 0;
             return dmg;
         }
-        public double takeSpelDamage(double damage, spel from)
+        public virtual double takeSpelDamage(double damage, spel from)
         {
             double dmg;
             if (from.DamageType == type_of_damage.magical)
@@ -427,16 +427,8 @@ namespace Game
             else if (target.Races == this.BadAgainst && this.DamageType == type_of_damage.physical)
                 to_dmg -= this.Damage / 10;
 
-            int dmg;
-            if (target is Berserk)
-            {
-                dmg = Convert.ToInt32(Berserk.take_damage(to_dmg, this, (Berserk)target));
-            }
-
-            else
-            {
-                dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
-            }
+            int dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
+            
 
             if (dmg == 0)
             {
@@ -472,64 +464,61 @@ namespace Game
             : base(name, health, damage, defence, evasion, vampirism, magresist, race, damageType) { }
         public Berserk() : this("none", 100, 12, 5, 0, 0, 20) { }
 
-        public static new double take_damage(double damage, Character from, Berserk to)
+        public override double take_damage(double damage, Character from)
         {
             Random? rand = new Random();
             double dmg = -10;
             if (from.DamageType == type_of_damage.physical)
             {
-                int a = rand.Next(0, 2), ev = rand.Next(1, (100 / to.Evasion) + 1);
+                int a = rand.Next(0, 2), ev = rand.Next(1, (100 / evasion) + 1);
                 if (a == 0)
                     damage -= (damage / 10);
                 else
                     damage += (damage / 10);
                 if (ev == 1)
                     return -1;
-
-                if (to.Health < 50)
-                    damage -= damage / 5;
-                dmg = ((damage - (damage / 100 * to.Defence)));
-                from.Health += ((dmg / 100) * to.Vampirism);
+                dmg = ((damage - (damage / 100 * defence)));
+                from.Health += ((dmg / 100) * this.vampirism);
 
             }
             else if (from.DamageType == type_of_damage.magical)
-                dmg = ((damage - (damage / 100 * to.Magresist)));
+                dmg = ((damage - (damage / 100 * magresist)));
             else if (from.DamageType == type_of_damage.clear)
                 dmg = damage;
+            
+            this.Health = Math.Max((this.Health - dmg), 0);
 
-            to.Health = Math.Max((to.Health - dmg), 0);
-
-            if (to.Health == 0 && to.LastChance == true)
+            if (this.Health == 0 && this.LastChance == true)
             {
-                to.Health = 1;
-                to.LastChance = false;
-                Console.WriteLine($"{to.Name} used his last chance!");
+                this.Health = 1;
+                this.LastChance = false;
+                Console.WriteLine($"{this.Name} used his last chance!");
                 return dmg;
             }
 
-            else if (to.Health == 0)
+            else if (this.Health == 0)
                 return 0;
             return dmg;
         }
-        public static new double takeSpelDamage(double damage, spel from, Berserk to)
+        public override double takeSpelDamage(double damage, spel from)
         {
             double dmg;
             if (from.DamageType == type_of_damage.magical)
-                dmg = ((damage - (damage / 100 * to.Magresist)));
+                dmg = ((damage - (damage / 100 * this.magresist)));
             else
                 dmg = damage;
 
-            to.Health = Math.Max((to.Health - dmg), 0);
+            this.health = Math.Max((this.health - dmg), 0);
 
-            if (to.Health == 0 && to.LastChance == true)
+            if (this.health == 0 && this.LastChance == true)
             {
-                to.Health = 1;
-                to.LastChance = false;
-                Console.WriteLine($"{to.Name} used his last chance!");
+                this.health = 1;
+                this.LastChance = false;
+                Console.WriteLine($"{this.Name} used his last chance!");
                 return dmg;
             }
 
-            else if (to.Health == 0)
+            else if (this.health == 0)
                 return 0;
             return dmg;
         }
@@ -546,15 +535,8 @@ namespace Game
             if (this.health < 50)
                 to_dmg *= 1.5;
 
-            int dmg;
-            if (target is Berserk)
-            {
-                dmg = Convert.ToInt32(Berserk.take_damage(to_dmg, this, (Berserk)target));
-            }
-            else
-            {
-                dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
-            }
+            int dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
+            
             if (dmg == 0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -565,11 +547,11 @@ namespace Game
             }
             else if (dmg == -1)
             {
-                Console.WriteLine($"{target.Name} evasioned from {this.name}!\n");
+                Console.WriteLine($"{target.Name} evasioned from {this.name}!");
                 return false;
             }
             Console.WriteLine($"{this.name} atacked {target.Name} and caused {dmg} damage!");
-            Console.WriteLine($"{target.Name} has {Convert.ToInt32(target.Health)} health!");
+            Console.WriteLine($"{target.Name} has {Math.Round(target.Health, 2)} health!");
             return false;
         }
 
@@ -578,6 +560,7 @@ namespace Game
 
     class Magical : Character
     {
+        protected Spell[] spellList = { new Fireball() };
         spel sun_strike = new spel("sun_strike", 10, type_of_damage.clear, spel_type.damage);
         spel fire = new spel("fire", 20, type_of_damage.magical, spel_type.damage);
         spel wind = new spel("wind", 12, type_of_damage.magical, spel_type.damage);
@@ -589,31 +572,21 @@ namespace Game
         public double CastSpell(Character target, spel Spel)
         {
             double dmg;
-            if (Spel.TypeSpel == spel_type.regen)
-            {
+            if (Spel.TypeSpel == spel_type.regen) { 
                 this.health += Spel.Damage;
                 return -1;
-            }
-            if (target is Berserk)
-            {
-                dmg = Berserk.takeSpelDamage(Spel.Damage, Spel, (Berserk)target);
-            }
-            else
-            {
-                dmg = target.takeSpelDamage(Spel.Damage, Spel);
-            }
-
-
+                }
+            dmg = target.takeSpelDamage(Spel.Damage, Spel);
             return dmg;
         }
 
         public new bool attack(Character target)
         {
             int dmg;
-            Random? rand = new Random();
+            Random? rand = new Random(Convert.ToInt32(DateTimeOffset.Now.ToUnixTimeSeconds()));
             if (rand.Next(1, 3) == 1)
             {
-                int a = rand.Next(1, 4);
+                int a = rand.Next(1, 5);
                 spel Spel = sun_strike;
                 if (a == 1) Spel = sun_strike;
                 else if (a == 2) Spel = fire;
@@ -631,11 +604,11 @@ namespace Game
                 }
                 if (dmg == -1)
                 {
-                    
+
                     Console.WriteLine($"{this.name} healling himselve by {Spel.Damage}hp!");
-                    Console.WriteLine($"{this.name} have {Convert.ToInt32(this.health)}!");
-                    Console.WriteLine($"{target.Name} has {Convert.ToInt32(target.Health)} health!");
-                    return true;
+                    Console.WriteLine($"{this.name} have {Math.Round(this.Health, 2)}hp!");
+                    Console.WriteLine($"{target.Name} has {Math.Round(target.Health, 2)}hp!");
+                    return false;
                 }
 
                 Console.WriteLine($"{this.name} atacked {target.Name} by {Spel.Name} and caused {dmg} damage!");
@@ -651,15 +624,8 @@ namespace Game
                 to_dmg -= this.Damage / 10;
 
 
-
-            if (target is Berserk)
-            {
-                dmg = Convert.ToInt32(Berserk.take_damage(to_dmg, this, (Berserk)target));
-            }
-            else
-            {
-                dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
-            }
+            dmg = Convert.ToInt32(target.take_damage(to_dmg, this));
+            
             if (dmg == 0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -670,114 +636,16 @@ namespace Game
             }
             else if (dmg == -1)
             {
-                Console.Write($"{target.Name} evasioned from {this.name}!");
+                Console.WriteLine($"{target.Name} evasioned from {this.name}!");
                 return false;
             }
             Console.WriteLine($"{this.name} atacked {target.Name} and caused {dmg} damage!");
-            Console.WriteLine($"{target.Name} has {Convert.ToInt32(target.Health)} health!");
+            Console.WriteLine($"{target.Name} has {Math.Round(target.Health, 2)} health!");
             return false;
         }
     }
 
 
-    class Shape
-    {
-        public virtual double GetArea() { return 0; }
-    }
-
-    class Square : Shape
-    {
-        double side;
-        public Square(double side)
-        {
-            this.side = side;
-        }
-        public override double GetArea()
-        {
-            return Math.Pow(side, 2);
-        }
-        public override string ToString()
-        {
-            return $"Square({this.side})";
-        }
-    }
-
-    class Rectangle : Shape {
-        double a, b;
-        public Rectangle(double a, double b)
-        {
-            this.a = a;
-            this.b = b;
-        }
-        public override double GetArea()
-        {
-            return a * b;
-        }
-        public override string ToString()
-        {
-            return $"Rectegle({this.a}, {this.b})";
-        }
-    }
-
-    class Circle : Shape {
-        double r;
-        public Circle(double r)
-        {
-            this.r = r;
-        }
-        public override double GetArea()
-        {
-            return (Math.PI * Math.Pow(r, 2));
-        }
-        public override string ToString()
-        {
-            return $"Circle({this.r})";
-        }
-    }
-
-    class Triangle : Shape
-    {
-        double a, b, c;
-        public Triangle(double a, double b, double c)
-        {
-            this.a=a; 
-            this.b=b;
-            this.c=c;
-        }
-        public override double GetArea()
-        {
-            double x = 0;
-            if (a > b && a > c)
-                x = 0.5 * c * b;
-            else if (b > a && b > c)
-                x = 0.5 * c * a;
-            else if (c > b && c > a)
-                x = 0.5 * a * b;
-            return x;
-        }
-        public override string ToString()
-        {
-            return $"Triangle({this.a}, {this.b}, {this.c})";
-        }
-    }
-
-    class Trapezoid : Shape {
-        double a, b, h; 
-        public Trapezoid(double a, double b, double h)
-        {
-            this.a = a;
-            this.b = b;
-            this.h = h;
-        }
-        public override double GetArea()
-        {
-            return (0.5 * (a + b) * h);
-        }
-        public override string ToString()
-        {
-            return $"Trapezoid({this.a}, {this.b}, {this.h})";
-        }
-    }
 
     class spells
     {
@@ -822,6 +690,25 @@ namespace Game
             this.damageType = damageType;
         }
     }
+
+    abstract class Spell
+    {
+        string? name;
+        string? Name
+        {
+            get { return this.name; }
+        }
+        public abstract void cast(Character target);
+    }
+    class Fireball : Spell {
+        string? name = "Fire ball";
+        double damage = 13;
+        public override void cast(Character target)
+        {
+            //target.takeSpellDamage(this.damage);
+        }
+    }
+
 
     class Web_site
     {
@@ -946,5 +833,106 @@ namespace Game
         }
     }
 
+    abstract class Shape
+    {
+        public abstract double GetArea();
+    }
+
+    class Square : Shape
+    {
+        double side;
+        public Square(double side)
+        {
+            this.side = side;
+        }
+        public override double GetArea()
+        {
+            return Math.Pow(side, 2);
+        }
+        public override string ToString()
+        {
+            return $"Square({this.side})";
+        }
+    }
+
+    class Rectangle : Shape
+    {
+        double a, b;
+        public Rectangle(double a, double b)
+        {
+            this.a = a;
+            this.b = b;
+        }
+        public override double GetArea()
+        {
+            return a * b;
+        }
+        public override string ToString()
+        {
+            return $"Rectegle({this.a}, {this.b})";
+        }
+    }
+
+    class Circle : Shape
+    {
+        double r;
+        public Circle(double r)
+        {
+            this.r = r;
+        }
+        public override double GetArea()
+        {
+            return (Math.PI * Math.Pow(r, 2));
+        }
+        public override string ToString()
+        {
+            return $"Circle({this.r})";
+        }
+    }
+
+    class Triangle : Shape
+    {
+        double a, b, c;
+        public Triangle(double a, double b, double c)
+        {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+        public override double GetArea()
+        {
+            double x = 0;
+            if (a > b && a > c)
+                x = 0.5 * c * b;
+            else if (b > a && b > c)
+                x = 0.5 * c * a;
+            else if (c > b && c > a)
+                x = 0.5 * a * b;
+            return x;
+        }
+        public override string ToString()
+        {
+            return $"Triangle({this.a}, {this.b}, {this.c})";
+        }
+    }
+
+    class Trapezoid : Shape
+    {
+        double a, b, h;
+        public Trapezoid(double a, double b, double h)
+        {
+            this.a = a;
+            this.b = b;
+            this.h = h;
+        }
+        public override double GetArea()
+        {
+            return (0.5 * (a + b) * h);
+        }
+        public override string ToString()
+        {
+            return $"Trapezoid({this.a}, {this.b}, {this.h})";
+        }
+    }
 
 }
