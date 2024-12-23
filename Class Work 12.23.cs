@@ -20,7 +20,7 @@ class Program
             {
                 var currentPoint = new Point(j, i);
                 if (chessman == currentPoint) Console.BackgroundColor = ConsoleColor.Red;
-                else if (Array.IndexOf(posibleMoves,currentPoint) != -1)
+                else if (Array.IndexOf(posibleMoves, currentPoint) != -1)
                 {
                     Console.BackgroundColor = ConsoleColor.Green;
                 }
@@ -62,21 +62,23 @@ class Program
         }
 
         */
+        int a, b;
+        Console.WriteLine("Points:");
+        a = Convert.ToInt32(Console.ReadLine());
+        b = Convert.ToInt32(Console.ReadLine());
 
-        Horse ferzin = new Horse(4, 4, team.white);
-        int[][] a = ferzin.whereCanMove();
-        Point[] points = new Point[a.Length];
-        for (int i = 0; i < a.Length; i++) {
-            points[i] = new Point(a[i][1], a[i][0]);
+
+        Ferzin ferzin = new Ferzin(a - 1, b - 1, team.white);
+        int[][] n = ferzin.whereCanMove();
+        Point[] points = new Point[n.Length];
+        for (int i = 0; i < n.Length; i++)
+        {
+            points[i] = new Point(n[i][1], n[i][0]);
         }
-        Point c = new Point(4, 4);
+        Point c = new Point(a - 1, b - 1);
         DrawBoard(c, points);
     }
 }
-
-
-
-
 
 
 
@@ -560,11 +562,13 @@ namespace Game
     }
 
 
-    enum team{
+    enum team
+    {
         white,
         black
     }
-    abstract class Chessman {
+    abstract class Chessman
+    {
         protected int x, y;
         protected team team;
 
@@ -586,13 +590,15 @@ namespace Game
                         a[b][0] = i;
                         a[b][1] = j;
                         b++;
+                        Console.WriteLine($"{b}, {i}, {j}");
                     }
                 }
             }
             int[][] c = new int[b][];
             for (int i = 0; i < b; ++i)
                 c[i] = new int[2];
-            for (int i = 0; i < b; i++) { 
+            for (int i = 0; i < b; i++)
+            {
                 c[i][0] = a[i][0];
                 c[i][1] = a[i][1];
             }
@@ -601,15 +607,16 @@ namespace Game
 
         public abstract bool isCanMove(int y, int x);
 
-        
+
     }
-    class Pawn : Chessman {
-        
+    class Pawn : Chessman
+    {
+
         public override bool isCanMove(int y, int x)
         {
             if (this.x == x)
                 if (this.y == y - 1 || this.y == y - 2) return true;
-            
+
             return false;
         }
         public Pawn(int x, int y, team team)
@@ -660,26 +667,13 @@ namespace Game
         }
     }
 
-    class Elephant : Chessman { 
+    class Elephant : Chessman
+    {
         public override bool isCanMove(int y, int x)
         {
-
-            for (int i = y + 1, j = x + 1; i < 8 || j < 8; i++, j++)
-            {
-                if (this.x == j && this.y == i) return true;
-            }
-            for (int i = y - 1, j = x + 1; i > 0 || j < 8; i--, j++)
-            {
-                if (this.x == j && this.y == i) return true;
-            }
-            for (int i = y - 1, j = x - 1; i > 0 || j > 0; i--, j--)
-            {
-                if (this.x == j && this.y == i) return true;
-            }
-            for (int i = y + 1, j = x - 1; i < 8 || j > 0; i++, j--)
-            {
-                if (this.x == j && this.y == i) return true;
-            }
+            if (x - this.x == y - this.y)
+                return true;
+            
 
             return false;
         }
@@ -701,16 +695,9 @@ namespace Game
                     return true;
             if (y == this.y || x == this.x) return true;
 
-            for (int i = y + 1, j = x + 1; i < 8 || j < 8; i++, j++)
-                if (this.x == j && this.y == i) return true;
-            for (int i = y - 1, j = x + 1; i > 0 || j < 8; i--, j++)
-                if (this.x == j && this.y == i) return true;
-            for (int i = y - 1, j = x - 1; i > 0 || j > 0; i--, j--)
-                if (this.x == j && this.y == i) return true;
-            for (int i = y + 1, j = x - 1; i < 8 || j > 0; i++, j--)
-                if (this.x == j && this.y == i) return true;
-                
-                
+            if (x - this.x == y - this.y)
+                return true;
+
 
             return false;
         }
