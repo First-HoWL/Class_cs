@@ -6,16 +6,39 @@ using System.IO;
 using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Diagnostics;
-
+using System.Drawing;
 
 public static class File { };
 
 class Program
 {
-    
+    static void DrawBoard(Point chessman, Point[] posibleMoves)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                var currentPoint = new Point(j, i);
+                if (chessman == currentPoint) Console.BackgroundColor = ConsoleColor.Red;
+                else if (Array.IndexOf(posibleMoves,currentPoint) != -1)
+                {
+                    Console.BackgroundColor = ConsoleColor.Green;
+                }
+                else
+                {
+                    Console.BackgroundColor = Convert.ToBoolean((j + i) % 2) ? ConsoleColor.DarkGray : ConsoleColor.Gray;
+                }
+                Console.Write("  ");
+                Console.ResetColor();
+            }
+            Console.WriteLine();
+        }
+        Console.ResetColor();
+    }
+
     static void Main(string[] args)
     {
-        
+        /*
         Berserk player1 = new Berserk("HoWL", 40, 15, 4, 15, 20, 30, (Race)1);
         player1.print();
         Console.WriteLine();
@@ -29,16 +52,25 @@ class Program
 
             if (player2.attack(player1))
                 break;
-
+            Console.WriteLine();
             Thread.Sleep(000);
 
             if (player1.attack(player2))
                 break;
-
+            Console.WriteLine();
             Thread.Sleep(000);
         }
 
+        */
 
+        Horse ferzin = new Horse(4, 4, team.white);
+        int[][] a = ferzin.whereCanMove();
+        Point[] points = new Point[a.Length];
+        for (int i = 0; i < a.Length; i++) {
+            points[i] = new Point(a[i][1], a[i][0]);
+        }
+        Point c = new Point(4, 4);
+        DrawBoard(c, points);
     }
 }
 
@@ -58,6 +90,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Game
 {
+
     enum Race
     {
         Human,
@@ -70,13 +103,6 @@ namespace Game
         physical,
         magical,
         clear
-    }
-    enum spels
-    {
-        fire,
-        wind,
-        regeneration,
-        sun_strike
     }
     enum spel_type
     {
@@ -470,8 +496,6 @@ namespace Game
         }
     }
 
-
-
     class spells
     {
         spel sun_strike = new spel("sun_strike", 10, type_of_damage.clear, spel_type.damage);
@@ -532,6 +556,188 @@ namespace Game
         public override void cast(Character target)
         {
             //target.takeSpellDamage(this.damage);
+        }
+    }
+
+
+    enum team{
+        white,
+        black
+    }
+    abstract class Chessman {
+        protected int x, y;
+        protected team team;
+
+        team Team { get { return team; } }
+
+        public int[][] whereCanMove()
+        {
+            int[][] a = new int[64][];
+            int b = 0;
+            for (int i = 0; i < 64; ++i)
+                a[i] = new int[2];
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (this.isCanMove(i, j))
+                    {
+                        a[b][0] = i;
+                        a[b][1] = j;
+                        b++;
+                    }
+                }
+            }
+            int[][] c = new int[b][];
+            for (int i = 0; i < b; ++i)
+                c[i] = new int[2];
+            for (int i = 0; i < b; i++) { 
+                c[i][0] = a[i][0];
+                c[i][1] = a[i][1];
+            }
+            return c;
+        }
+
+        public abstract bool isCanMove(int y, int x);
+
+        
+    }
+    class Pawn : Chessman {
+        
+        public override bool isCanMove(int y, int x)
+        {
+            if (this.x == x)
+                if (this.y == y - 1 || this.y == y - 2) return true;
+            
+            return false;
+        }
+        public Pawn(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
+        }
+    }
+
+    class Turris : Chessman
+    {
+
+        public override bool isCanMove(int y, int x)
+        {
+            if (y == this.y || x == this.x) return true;
+            else
+                return false;
+        }
+        public Turris(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
+        }
+    }
+
+    class Horse : Chessman
+    {
+        public override bool isCanMove(int y, int x)
+        {
+            if (this.y + 2 == y && this.x + 1 == x) return true;
+            else if (this.y + 2 == y && this.x - 1 == x) return true;
+            else if (this.y - 2 == y && this.x + 1 == x) return true;
+            else if (this.y - 2 == y && this.x - 1 == x) return true;
+            else if (this.y + 1 == y && this.x - 2 == x) return true;
+            else if (this.y + 1 == y && this.x + 2 == x) return true;
+            else if (this.y - 1 == y && this.x - 2 == x) return true;
+            else if (this.y - 1 == y && this.x + 2 == x) return true;
+            else
+                return false;
+        }
+        public Horse(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
+        }
+    }
+
+    class Elephant : Chessman { 
+        public override bool isCanMove(int y, int x)
+        {
+
+            for (int i = y + 1, j = x + 1; i < 8 || j < 8; i++, j++)
+            {
+                if (this.x == j && this.y == i) return true;
+            }
+            for (int i = y - 1, j = x + 1; i > 0 || j < 8; i--, j++)
+            {
+                if (this.x == j && this.y == i) return true;
+            }
+            for (int i = y - 1, j = x - 1; i > 0 || j > 0; i--, j--)
+            {
+                if (this.x == j && this.y == i) return true;
+            }
+            for (int i = y + 1, j = x - 1; i < 8 || j > 0; i++, j--)
+            {
+                if (this.x == j && this.y == i) return true;
+            }
+
+            return false;
+        }
+        public Elephant(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
+        }
+    }
+
+    class Ferzin : Chessman
+    {
+        public override bool isCanMove(int y, int x)
+        {
+
+            if (this.x == x + 1 || this.x == x - 1 || this.x == x)
+                if (this.y == y + 1 || this.y == y - 1 || this.y == y)
+                    return true;
+            if (y == this.y || x == this.x) return true;
+
+            for (int i = y + 1, j = x + 1; i < 8 || j < 8; i++, j++)
+                if (this.x == j && this.y == i) return true;
+            for (int i = y - 1, j = x + 1; i > 0 || j < 8; i--, j++)
+                if (this.x == j && this.y == i) return true;
+            for (int i = y - 1, j = x - 1; i > 0 || j > 0; i--, j--)
+                if (this.x == j && this.y == i) return true;
+            for (int i = y + 1, j = x - 1; i < 8 || j > 0; i++, j--)
+                if (this.x == j && this.y == i) return true;
+                
+                
+
+            return false;
+        }
+        public Ferzin(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
+        }
+    }
+
+    class King : Chessman
+    {
+        public override bool isCanMove(int y, int x)
+        {
+
+            if (this.x == x + 1 || this.x == x - 1 || this.x == x)
+                if (this.y == y + 1 || this.y == y - 1 || this.y == y)
+                    return true;
+
+            return false;
+        }
+        public King(int x, int y, team team)
+        {
+            this.x = x;
+            this.y = y;
+            this.team = team;
         }
     }
 
