@@ -159,7 +159,7 @@ namespace Game
                 int index = 0;
                 var alerts = await GetAlerts();
                 if (alerts == null)
-                    Console.WriteLine("error");
+                    Console.Write("");
                 else foreach (var Alert in alerts.alerts)
                 {
                     if (Convert.ToInt32(Alert.location_uid) < 32) {
