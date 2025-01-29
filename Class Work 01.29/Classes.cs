@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,13 +16,8 @@ namespace DeckofCards
         Diamonds
     }
     class cardes
-    {
+    { 
         public List<card> cards { get; set; }
-
-        public card retCard(int a)
-        {
-            return cards[a];
-        }
     }
     class deckResponse
     {
@@ -81,7 +77,7 @@ namespace DeckofCards
             }
             return null;
         }
-        
+
         public async Task<deck> CardBack()
         {
             var client = new HttpClient();
@@ -97,7 +93,7 @@ namespace DeckofCards
 
 
     }
-    
+
     class card
     {
         public string code { get; set; }
